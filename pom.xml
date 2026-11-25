@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.jorsyframework</groupId>
-    <artifactId>jorsyframework</artifactId>
+    <groupId>com.jopsonframework</groupId>
+    <artifactId>jopsonframework</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>jorsy-starter-parent</module>
-        <module>jorsy-admin-website</module>
+        <module>jopson-starter-parent</module>
+        <module>jopson-admin-website</module>
     </modules>
 </project>

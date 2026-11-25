@@ -1,17 +1,17 @@
-# Jorsy 工程规范
+# Jopson 工程规范
 
-本文件适用于整个仓库及以后新增的站点。模块另有 `AGENTS.md` 时，同时读取其规则。[根 POM](pom.xml) 只负责模块聚合，依赖版本、编译与打包约定由 [jorsy-starter-parent](jorsy-starter-parent/pom.xml) 统一管理。已交付能力、接入步骤及构建命令见 [README](README.md)。下文涉及数据库、认证、消息和外部服务的约定，在对应能力接入时生效。
+本文件适用于整个仓库及以后新增的站点。模块另有 `AGENTS.md` 时，同时读取其规则。[根 POM](pom.xml) 只负责模块聚合，依赖版本、编译与打包约定由 [jopson-starter-parent](jopson-starter-parent/pom.xml) 统一管理。已交付能力、接入步骤及构建命令见 [README](README.md)。下文涉及数据库、认证、消息和外部服务的约定，在对应能力接入时生效。
 
 ## 业务域、站点与依赖
 
-先确定谁有权改变这份数据、谁解释业务规则、谁消费结果，再选择模块。可部署的 Java 后台站点统一命名为 `jorsy-<业务名>-website`。当前依赖方向为 `jorsy-admin-website → jorsy-starter-admin → jorsy-starter-core`。未来站点按需依赖 core 或 admin，独立管理配置、数据和会话。
+先确定谁有权改变这份数据、谁解释业务规则、谁消费结果，再选择模块。可部署的 Java 后台站点统一命名为 `jopson-<业务名>-website`。当前依赖方向为 `jopson-admin-website → jopson-starter-admin → jopson-starter-core`。未来站点按需依赖 core 或 admin，独立管理配置、数据和会话。
 
 | 改动归属 | 判断依据 |
 | --- | --- |
-| [starter-parent](jorsy-starter-parent/pom.xml) | 聚合其目录下的 starter，管理编译工具链、打包约定和依赖版本。发布新版本时同步父 POM 坐标与 `jorsy.version`，让使用自有项目版本的站点也能解析对应的 Jorsy starter。 |
-| [starter-core](jorsy-starter-parent/jorsy-starter-core/AGENTS.md) | 跨站点的技术机制和公共契约，如从请求提取身份、序列化响应、传递日志上下文。 |
-| [starter-admin](jorsy-starter-parent/jorsy-starter-admin/AGENTS.md) | 可复用的后台业务，如角色获得资源权限、授权撤销后会话如何失效。 |
-| [admin-website](jorsy-admin-website/AGENTS.md) 或其他消费站点 | 本站拥有的数据和用例，如单据归属、审核条件、菜单和业务角色。 |
+| [starter-parent](jopson-starter-parent/pom.xml) | 聚合其目录下的 starter，管理编译工具链、打包约定和依赖版本。发布新版本时同步父 POM 坐标与 `jopson.version`，让使用自有项目版本的站点也能解析对应的 Jopson starter。 |
+| [starter-core](jopson-starter-parent/jopson-starter-core/AGENTS.md) | 跨站点的技术机制和公共契约，如从请求提取身份、序列化响应、传递日志上下文。 |
+| [starter-admin](jopson-starter-parent/jopson-starter-admin/AGENTS.md) | 可复用的后台业务，如角色获得资源权限、授权撤销后会话如何失效。 |
+| [admin-website](jopson-admin-website/AGENTS.md) 或其他消费站点 | 本站拥有的数据和用例，如单据归属、审核条件、菜单和业务角色。 |
 
 每个域负责自己的写入、状态流转及数据结构。跨域协作通过所属域公开的用例或查询契约。需要修改另一个域的数据时调用它的用例。根据真实的数据所有权、独立发布或复用需求拆分模块和服务。技术包保持单向依赖，业务代码可以按域组织在同一个部署单元中。
 

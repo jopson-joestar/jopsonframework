@@ -1,20 +1,22 @@
-# Jorsy 本地 Docker 联调
+# Jopson 本地 Docker 联调
 
 宿主机使用 JDK 21、Maven 3.9.6、Node.js 22.18+（22.x）或 24.x、pnpm 10.33.4 构建。Docker Desktop 运行 Java 和 MySQL，Spring Boot 从 JAR 提供后台页面和同源 API。
+
+本地 Compose 沿用 `jorsy-local` 项目名、`jorsy_admin` 数据库和原 MySQL 数据卷。已有库更新时只需重建 Java 容器，账号、资源和角色授权可继续使用。
 
 ## 构建整包
 
 在仓库根目录运行以下 PowerShell 命令。确认 `mvn -v` 显示 Java 21。
 
 ```powershell
-Push-Location .\jorsy-frontend-monorepo
+Push-Location .\jopson-frontend-monorepo
 pnpm install --frozen-lockfile
 pnpm build:embedded
 Pop-Location
 mvn clean verify -Pwith-admin-web
 ```
 
-一体 JAR 位于 `jorsy-admin-website/target/with-admin-web/jorsy-admin-website-with-web-1.0.0.jar`。前端编译产物位于 JAR 内的 `BOOT-INF/classes/static/admin-web/`。日常 Java 验证可从仓库根目录运行 `mvn verify`。
+一体 JAR 位于 `jopson-admin-website/target/with-admin-web/jopson-admin-website-with-web-1.0.0.jar`。前端编译产物位于 JAR 内的 `BOOT-INF/classes/static/admin-web/`。日常 Java 验证可从仓库根目录运行 `mvn verify`。
 
 ## 启动与登录
 
@@ -38,7 +40,7 @@ docker compose up -d --wait admin
 docker compose logs -f admin
 ```
 
-看到 Java 应用启动后，打开 [Jorsy Admin](http://127.0.0.1:18085/)，使用初始化时指定的管理员账号登录。此前初始化的演示库可继续使用原演示账号和密码。[健康接口](http://127.0.0.1:18085/actuator/health) 预期返回 `UP`。按 `Ctrl+C` 退出日志跟踪。
+看到 Java 应用启动后，打开 [Jopson Admin](http://127.0.0.1:18085/)，使用初始化时指定的管理员账号登录。此前初始化的演示库可继续使用原演示账号和密码。[健康接口](http://127.0.0.1:18085/actuator/health) 预期返回 `UP`。按 `Ctrl+C` 退出日志跟踪。
 
 新库首次登录后，在工作台点击「导入菜单资源」，选择 [admin-resource-tree.json](../../_database_schema/admin-resource-tree.json)。导入成功后页面会刷新菜单。
 
@@ -52,7 +54,7 @@ docker compose logs -f admin
 
 ```yaml
 # 完整后台，默认配置
-jorsy:
+jopson:
   admin:
     enabled: true
     mode: full
@@ -60,18 +62,18 @@ jorsy:
 
 ```yaml
 # 固定账号登录，默认无库
-jorsy:
+jopson:
   admin:
     enabled: true
     mode: simple
     simple:
-      username: ${JORSY_ADMIN_SIMPLE_USERNAME}
-      password-hash: ${JORSY_ADMIN_SIMPLE_PASSWORD_HASH}
+      username: ${JOPSON_ADMIN_SIMPLE_USERNAME}
+      password-hash: ${JOPSON_ADMIN_SIMPLE_PASSWORD_HASH}
 ```
 
 ```yaml
 # 关闭后台，独立启用业务数据库与 Ehcache
-jorsy:
+jopson:
   admin:
     enabled: false
   datasource:
@@ -82,7 +84,7 @@ spring:
     cache-names: documents
 ```
 
-简易登录使用环境提供的 `{bcrypt}` 密码摘要。需要业务数据库时配置已有连接。省略 `jorsy.datasource.enabled` 时，简易登录和关闭后台均可无库启动。缓存选项和连接要求见[仓库配置说明](../../README.md#后台模式数据库和缓存)。
+简易登录使用环境提供的 `{bcrypt}` 密码摘要。需要业务数据库时配置已有连接。省略 `jopson.datasource.enabled` 时，简易登录和关闭后台均可无库启动。缓存选项和连接要求见[仓库配置说明](../../README.md#后台模式数据库和缓存)。
 
 ## 更新与停止
 
@@ -93,4 +95,4 @@ docker compose up -d --no-deps --force-recreate admin
 docker compose logs -f admin
 ```
 
-在 `deploy/localhost` 执行 `docker compose down` 可停止 Jorsy 并保留 MySQL 命名卷。GwCloud 有独立的 Compose 项目和端口。
+在 `deploy/localhost` 执行 `docker compose down` 可停止 Jopson 并保留 MySQL 命名卷。GwCloud 有独立的 Compose 项目和端口。

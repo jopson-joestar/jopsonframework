@@ -1,7 +1,0 @@
-com.jorsyframework.starter.core.cache.autoconfigure.JorsyCacheAutoConfiguration
-com.jorsyframework.starter.core.cache.redis.JorsyRedisCacheAutoConfiguration
-com.jorsyframework.starter.core.json.autoconfigure.JorsyJsonAutoConfiguration
-com.jorsyframework.starter.core.log.autoconfigure.JorsyLogAutoConfiguration
-com.jorsyframework.starter.core.mybatis.autoconfigure.JorsyMybatisAutoConfiguration
-com.jorsyframework.starter.core.openapi.autoconfigure.JorsyValueEnumOpenApiConfiguration
-com.jorsyframework.starter.core.web.autoconfigure.JorsyWebAutoConfiguration

@@ -1,4 +1,4 @@
--- Initialize the Jorsy Admin tables in an empty MySQL database.
+-- Initialize the Jopson Admin tables in an empty MySQL database.
 SET NAMES utf8mb4;
 
 CREATE TABLE sys_user (

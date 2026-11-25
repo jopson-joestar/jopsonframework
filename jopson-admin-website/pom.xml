@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.jopsonframework</groupId>
+        <artifactId>jopson-starter-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../jopson-starter-parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>jopson-admin-website</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.jopsonframework</groupId>
+            <artifactId>jopson-starter-admin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <classifier>jakarta</classifier>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>with-admin-web</id>
+            <properties>
+                <admin-web.dist>${project.basedir}/../jopson-frontend-monorepo/apps/jopson-admin-web/dist-embedded</admin-web.dist>
+            </properties>
+            <build>
+                <directory>${project.basedir}/target/with-admin-web</directory>
+                <finalName>${project.artifactId}-with-web-${project.version}</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>embed-admin-web</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <fail message="Run pnpm build:embedded in jopson-frontend-monorepo before packaging the admin website.">
+                                            <condition>
+                                                <not>
+                                                    <available file="${admin-web.dist}/index.html" type="file"/>
+                                                </not>
+                                            </condition>
+                                        </fail>
+                                        <copy todir="${project.build.outputDirectory}/static/admin-web">
+                                            <fileset dir="${admin-web.dist}"/>
+                                        </copy>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

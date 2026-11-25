@@ -1,13 +1,13 @@
-# Jorsy Framework
+# Jopson Framework
 
-Jorsy 1.0.0 使用 Java 21 和 Spring Boot 4.2.0。根 POM 聚合 `jorsy-starter-parent` 和 `jorsy-admin-website`，parent 再聚合其目录下的两个 starter。后台按单体部署，运行时依赖方向为 `jorsy-admin-website → jorsy-starter-admin → jorsy-starter-core`。后台前端位于 `jorsy-frontend-monorepo/apps/jorsy-admin-web/`。[前端启动与联调说明](jorsy-frontend-monorepo/README.zh-CN.md#安装使用)
+Jopson 1.0.0 使用 Java 21 和 Spring Boot 4.2.0。根 POM 聚合 `jopson-starter-parent` 和 `jopson-admin-website`，parent 再聚合其目录下的两个 starter。后台按单体部署，运行时依赖方向为 `jopson-admin-website → jopson-starter-admin → jopson-starter-core`。后台前端位于 `jopson-frontend-monorepo/apps/jopson-admin-web/`。[前端启动与联调说明](jopson-frontend-monorepo/README.zh-CN.md#安装使用)
 
 | 模块 | 职责 |
 | --- | --- |
-| [`jorsy-starter-parent`](jorsy-starter-parent/pom.xml) | 构建父 POM，统一管理框架依赖版本、Java 编译、注解处理器和打包约定，也支持单独导入依赖管理。 |
-| [`jorsy-starter-core`](jorsy-starter-parent/jorsy-starter-core/pom.xml) | 普通 JAR，提供响应、分页、校验、JSON、缓存、日志和 Actuator，并引入 Hutool Core、MapStruct 注解和 OpenAPI 文档能力。 |
-| [`jorsy-starter-admin`](jorsy-starter-parent/jorsy-starter-admin/pom.xml) | 普通 JAR，提供完整后台和固定账号登录，默认启用完整后台。 |
-| [`jorsy-admin-website`](jorsy-admin-website/pom.xml) | 可独立启动的后台站点。启动类为 `com.jorsyframework.website.admin.AdminWebsiteApplication`，同包下的 `common` 存放本站共用的配置与组件，`modules` 按本站业务功能建包。 |
+| [`jopson-starter-parent`](jopson-starter-parent/pom.xml) | 构建父 POM，统一管理框架依赖版本、Java 编译、注解处理器和打包约定，也支持单独导入依赖管理。 |
+| [`jopson-starter-core`](jopson-starter-parent/jopson-starter-core/pom.xml) | 普通 JAR，提供响应、分页、校验、JSON、缓存、日志和 Actuator，并引入 Hutool Core、MapStruct 注解和 OpenAPI 文档能力。 |
+| [`jopson-starter-admin`](jopson-starter-parent/jopson-starter-admin/pom.xml) | 普通 JAR，提供完整后台和固定账号登录，默认启用完整后台。 |
+| [`jopson-admin-website`](jopson-admin-website/pom.xml) | 可独立启动的后台站点。启动类为 `com.jopsonframework.website.admin.AdminWebsiteApplication`，同包下的 `common` 存放本站共用的配置与组件，`modules` 按本站业务功能建包。 |
 
 ## 本地构建和启动
 
@@ -25,7 +25,7 @@ mvn -v
 
 ```powershell
 mvn clean install
-java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar --spring.profiles.active=dev
+java -jar .\jopson-admin-website\target\jopson-admin-website-1.0.0.jar --spring.profiles.active=dev
 ```
 
 在另一终端请求健康接口，预期返回 HTTP 200，且 JSON 中的 `status` 为 `UP`。在服务终端按 `Ctrl+C` 停止。
@@ -38,10 +38,10 @@ curl.exe -i http://localhost:8080/actuator/health
 
 后台站点默认启用登录、权限和基础数据。首次部署时，按[基础资料与权限管理](#基础资料与权限管理)在本站 MySQL 空库建表和初始化，并使用部署者指定的管理员账号和 `{bcrypt}` 密码摘要。
 
-在运行环境注入 `JORSY_DB_URL`、`JORSY_DB_USER`、`JORSY_DB_PASSWORD`（也支持标准 `SPRING_DATASOURCE_*`），然后运行以下命令。仅本地 HTTP 联调时在当前终端设置 `$env:JORSY_COOKIE_SECURE = 'false'`。生产环境通过 HTTPS 访问同源 `/api`。
+在运行环境注入 `JOPSON_DB_URL`、`JOPSON_DB_USER`、`JOPSON_DB_PASSWORD`（也支持标准 `SPRING_DATASOURCE_*`），然后运行以下命令。仅本地 HTTP 联调时在当前终端设置 `$env:JOPSON_COOKIE_SECURE = 'false'`。生产环境通过 HTTPS 访问同源 `/api`。
 
 ```powershell
-java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar
+java -jar .\jopson-admin-website\target\jopson-admin-website-1.0.0.jar
 ```
 
 浏览器获取 `GET /auth/csrf` 返回的 `headerName` 和 `token`，在写请求头中带上令牌。以表单编码向 `POST /auth/login` 提交 `username`、`password`，成功后重新取 CSRF。认证依靠 HttpOnly 会话 Cookie，空闲 30 分钟或服务重启后需要重新登录。同一来源连续产生的失败尝试在五分钟内达到 20 次时返回 429。
@@ -53,19 +53,19 @@ java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar
 | `POST /admin/sys-login/switch-rights` | JSON 传 `sysRightsId`，仅可选择本人启用的身份。返回新的当前用户信息。 |
 | `POST /auth/logout` | 销毁会话并清除 Cookie。退出后重新获取 CSRF 供下次登录使用。 |
 
-角色授权的增减在下次受保护请求生效。登录失效返回 401，缺少功能权限或无有效默认身份返回 403。Servlet 站点引入 `jorsy-starter-admin` 后，配置 MySQL 驱动和数据源即可启用整套后台。可参考[网站 POM](jorsy-admin-website/pom.xml)及[网站配置](jorsy-admin-website/src/main/resources/application.yml)。
+角色授权的增减在下次受保护请求生效。登录失效返回 401，缺少功能权限或无有效默认身份返回 403。Servlet 站点引入 `jopson-starter-admin` 后，配置 MySQL 驱动和数据源即可启用整套后台。可参考[网站 POM](jopson-admin-website/pom.xml)及[网站配置](jopson-admin-website/src/main/resources/application.yml)。
 
 ### 后台模式、数据库和缓存
 
 | 配置 | 后台行为 | 数据源默认 |
 | --- | --- | --- |
-| 省略后台配置，或 `jorsy.admin.enabled=true` 且 `jorsy.admin.mode=full` | 使用数据库账号、权限和完整后台 | 开启，启动时检查 Admin 表 |
-| `jorsy.admin.enabled=true` 且 `jorsy.admin.mode=simple` | 使用固定账号保护业务页面和接口，使用站点前端定义的业务路由 | 关闭 |
-| `jorsy.admin.enabled=false` | 关闭后台登录、接口和内嵌页面入口，忽略 `mode` 和固定账号配置 | 关闭 |
+| 省略后台配置，或 `jopson.admin.enabled=true` 且 `jopson.admin.mode=full` | 使用数据库账号、权限和完整后台 | 开启，启动时检查 Admin 表 |
+| `jopson.admin.enabled=true` 且 `jopson.admin.mode=simple` | 使用固定账号保护业务页面和接口，使用站点前端定义的业务路由 | 关闭 |
+| `jopson.admin.enabled=false` | 关闭后台登录、接口和内嵌页面入口，忽略 `mode` 和固定账号配置 | 关闭 |
 
-简易登录在服务端配置 `jorsy.admin.simple.username` 和 `jorsy.admin.simple.password-hash`，也可通过环境变量 `JORSY_ADMIN_SIMPLE_USERNAME` 和 `JORSY_ADMIN_SIMPLE_PASSWORD_HASH` 注入。账号为 1 至 32 个字符，摘要使用 `{bcrypt}` 格式。浏览器继续使用相同的登录、退出和 CSRF 接口。当前用户响应中的 `mode` 为 `simple`，无组织、角色或可切换身份。
+简易登录在服务端配置 `jopson.admin.simple.username` 和 `jopson.admin.simple.password-hash`，也可通过环境变量 `JOPSON_ADMIN_SIMPLE_USERNAME` 和 `JOPSON_ADMIN_SIMPLE_PASSWORD_HASH` 注入。账号为 1 至 32 个字符，摘要使用 `{bcrypt}` 格式。浏览器继续使用相同的登录、退出和 CSRF 接口。当前用户响应中的 `mode` 为 `simple`，无组织、角色或可切换身份。
 
-在简易登录或关闭后台时，设置 `jorsy.datasource.enabled=true` 并提供 `spring.datasource.*` 可启用业务数据源。完整后台需要数据源，显式关闭时启动失败。`dev` 关闭后台且默认关闭数据库，可直接使用 Swagger。
+在简易登录或关闭后台时，设置 `jopson.datasource.enabled=true` 并提供 `spring.datasource.*` 可启用业务数据源。完整后台需要数据源，显式关闭时启动失败。`dev` 关闭后台且默认关闭数据库，可直接使用 Swagger。
 
 缓存独立由 `spring.cache.type` 选择。后台站点 JAR 已包含 Redis 和 Ehcache 运行依赖。
 
@@ -80,14 +80,14 @@ java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar
 
 ## 接入构建父 POM
 
-Jorsy 的独立父 POM 在 `dependencyManagement` 中导入 `spring-boot-dependencies`。属性 `spring-boot.version` 同时指定 Boot BOM 和打包插件的版本。Jorsy 管理 Java 21 的 `--release`、`-parameters`、UTF-8 和测试插件。构建时只对 `application*.yml`、`application*.yaml`、`application*.properties` 替换 `@...@`，其中的 `${...}` 留给 Spring 在运行时解析。
+Jopson 的独立父 POM 在 `dependencyManagement` 中导入 `spring-boot-dependencies`。属性 `spring-boot.version` 同时指定 Boot BOM 和打包插件的版本。Jopson 管理 Java 21 的 `--release`、`-parameters`、UTF-8 和测试插件。构建时只对 `application*.yml`、`application*.yaml`、`application*.properties` 替换 `@...@`，其中的 `${...}` 留给 Spring 在运行时解析。
 
-新站点可以继承 `jorsy-starter-parent`，使用统一的 Java 21、Lombok 和 MapStruct 编译配置。站点可声明自己的项目版本，core 和 admin 依赖的版本由父 POM 管理。原来继承 `com.jorsyframework:jorsyframework` 的工程，将 `<parent>` 更新为以下坐标。
+新站点可以继承 `jopson-starter-parent`，使用统一的 Java 21、Lombok 和 MapStruct 编译配置。站点可声明自己的项目版本，core 和 admin 依赖的版本由父 POM 管理。旧版使用方需更新 Maven 坐标、Java 导入以及 `jopson.*` 和 `JOPSON_*` 配置名称。
 
 ```xml
 <parent>
-    <groupId>com.jorsyframework</groupId>
-    <artifactId>jorsy-starter-parent</artifactId>
+    <groupId>com.jopsonframework</groupId>
+    <artifactId>jopson-starter-parent</artifactId>
     <version>1.0.0</version>
     <relativePath/>
 </parent>
@@ -99,8 +99,8 @@ Jorsy 的独立父 POM 在 `dependencyManagement` 中导入 `spring-boot-depende
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>com.jorsyframework</groupId>
-            <artifactId>jorsy-starter-parent</artifactId>
+            <groupId>com.jopsonframework</groupId>
+            <artifactId>jopson-starter-parent</artifactId>
             <version>1.0.0</version>
             <type>pom</type>
             <scope>import</scope>
@@ -111,12 +111,12 @@ Jorsy 的独立父 POM 在 `dependencyManagement` 中导入 `spring-boot-depende
 
 ## 只接入 core
 
-完成本地安装后，在 Spring Boot 4.2.0 MVC 工程中添加以下依赖。示例显式指定版本，继承或导入 Jorsy 父 POM 的站点可省略依赖的 `<version>`。站点沿用自己的 `@SpringBootApplication` 和包扫描范围。
+完成本地安装后，在 Spring Boot 4.2.0 MVC 工程中添加以下依赖。示例显式指定版本，继承或导入 Jopson 父 POM 的站点可省略依赖的 `<version>`。站点沿用自己的 `@SpringBootApplication` 和包扫描范围。
 
 ```xml
 <dependency>
-    <groupId>com.jorsyframework</groupId>
-    <artifactId>jorsy-starter-core</artifactId>
+    <groupId>com.jopsonframework</groupId>
+    <artifactId>jopson-starter-core</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -145,7 +145,7 @@ record CreateDocumentParam(@NotBlank String number, @NotBlank @Size(max = 80) St
 record UpdateDocumentParam(@NotBlank @Size(max = 80) String title, @Size(max = 200) String remark) {}
 ```
 
-固定的业务状态实现 `com.jorsyframework.starter.core.enums.ValueEnum<V>`。同一枚举选择一种类型，每个常量声明唯一的非空字符串或 `Integer` 编码。请求类直接使用枚举类型。
+固定的业务状态实现 `com.jopsonframework.starter.core.enums.ValueEnum<V>`。同一枚举选择一种类型，每个常量声明唯一的非空字符串或 `Integer` 编码。请求类直接使用枚举类型。
 
 ```java
 enum DocumentStatus implements ValueEnum<String> {
@@ -163,7 +163,7 @@ record DocumentQuery(DocumentStatus status) {}
 
 ### 分页列表批量补齐展示名称
 
-用 `com.jorsyframework.starter.core.convert.ConvertProvider<K,V>` 对接业务域的批量查名方法。先查询调用者可见的一页数据，再用 `ConvertContext.load` 对当前页的非空键去重并查询一次。将上下文作为 MapStruct 的 `@Context` 参数传给列表映射与行映射。
+用 `com.jopsonframework.starter.core.convert.ConvertProvider<K,V>` 对接业务域的批量查名方法。先查询调用者可见的一页数据，再用 `ConvertContext.load` 对当前页的非空键去重并查询一次。将上下文作为 MapStruct 的 `@Context` 参数传给列表映射与行映射。
 
 ```java
 var names = ConvertContext.load(page.items(), Document::reviewerId, reviewerService::findNamesByIds);
@@ -171,13 +171,13 @@ var items = documentMapper.toRows(page.items(), names);
 return new PageResult<>(items, page.total(), page.currentPage(), page.pageSize());
 ```
 
-行映射通过 `names.get(reviewerId)` 读取本页结果，找不到的名称为 `null`，保留该行和原顺序。空页跳过查名，查询失败交给现有系统异常处理。每次转换创建自己的上下文，数据权限由 Provider 落实。完整示例见[测试站点](jorsy-starter-parent/jorsy-starter-core/src/test/java/org/example/jorsy/DocumentEndpoints.java)和[列表 Mapper](jorsy-starter-parent/jorsy-starter-core/src/test/java/org/example/jorsy/DocumentRowMapper.java)。
+行映射通过 `names.get(reviewerId)` 读取本页结果，找不到的名称为 `null`，保留该行和原顺序。空页跳过查名，查询失败交给现有系统异常处理。每次转换创建自己的上下文，数据权限由 Provider 落实。完整示例见[测试站点](jopson-starter-parent/jopson-starter-core/src/test/java/org/example/jopson/DocumentEndpoints.java)和[列表 Mapper](jopson-starter-parent/jopson-starter-core/src/test/java/org/example/jopson/DocumentRowMapper.java)。
 
 ## Hutool、MapStruct 与 Lombok
 
-引用 core 后即可使用 Hutool 5.8.48 的 `StrUtil`、`CollUtil` 等工具。业务对象转换可以声明 `@Mapper(componentModel = "spring")`，再按 Mapper 接口注入生成的 Spring Bean。继承 `jorsy-starter-parent` 的模块已具备所需的 Lombok 和注解处理器配置。
+引用 core 后即可使用 Hutool 5.8.48 的 `StrUtil`、`CollUtil` 等工具。业务对象转换可以声明 `@Mapper(componentModel = "spring")`，再按 Mapper 接口注入生成的 Spring Bean。继承 `jopson-starter-parent` 的模块已具备所需的 Lombok 和注解处理器配置。
 
-选用其他父 POM 的站点，在**编译 Mapper 的模块**配置注解处理器。以下示例适用于已导入 Jorsy 依赖管理的站点。编译插件从依赖管理中解析 Lombok 处理器版本，使其与编译时的 Lombok 依赖一致。
+选用其他父 POM 的站点，在**编译 Mapper 的模块**配置注解处理器。以下示例适用于已导入 Jopson 依赖管理的站点。编译插件从依赖管理中解析 Lombok 处理器版本，使其与编译时的 Lombok 依赖一致。
 
 ```xml
 <dependencies>
@@ -217,16 +217,16 @@ return new PageResult<>(items, page.total(), page.currentPage(), page.pageSize()
 </build>
 ```
 
-外部站点在应用模块启用 `spring-boot-maven-plugin` 打可执行 JAR。继承 Jorsy 父 POM 时会沿用其 Lombok 打包排除配置，使用其他父 POM 时可参照同一插件的 `excludes`。MapStruct 生成的实现类随应用打包。
+外部站点在应用模块启用 `spring-boot-maven-plugin` 打可执行 JAR。继承 Jopson 父 POM 时会沿用其 Lombok 打包排除配置，使用其他父 POM 时可参照同一插件的 `excludes`。MapStruct 生成的实现类随应用打包。
 
 ## 接入 admin
 
-需要后台接口的站点直接引用 admin，Maven 会传递引入 core。继承或导入 Jorsy 父 POM 时同样可省略依赖版本。各站点独立配置、部署和管理自己的数据。
+需要后台接口的站点直接引用 admin，Maven 会传递引入 core。继承或导入 Jopson 父 POM 时同样可省略依赖版本。各站点独立配置、部署和管理自己的数据。
 
 ```xml
 <dependency>
-    <groupId>com.jorsyframework</groupId>
-    <artifactId>jorsy-starter-admin</artifactId>
+    <groupId>com.jopsonframework</groupId>
+    <artifactId>jopson-starter-admin</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
@@ -236,7 +236,7 @@ return new PageResult<>(items, page.total(), page.currentPage(), page.pageSize()
 core 默认关闭 OpenAPI 文档和 Swagger UI。后台站点的 `dev` 配置关闭后台装配并启用两者，可在无 MySQL 的环境中启动。构建后运行以下命令，然后打开 [Swagger UI](http://localhost:8080/swagger-ui/index.html) 或 [OpenAPI JSON](http://localhost:8080/v3/api-docs)。
 
 ```powershell
-java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar --spring.profiles.active=dev
+java -jar .\jopson-admin-website\target\jopson-admin-website-1.0.0.jar --spring.profiles.active=dev
 ```
 
 其他站点可在自己的 `application-dev.yml` 中启用相同入口。
@@ -251,7 +251,7 @@ springdoc:
 
 ## 按需接入 MySQL
 
-需要持久化的站点在引用 core 或 admin 的基础上增加以下依赖。版本由继承或导入的 `jorsy-starter-parent` 管理。只使用 Web 能力的站点可以直接启动，无需配置数据源。
+需要持久化的站点在引用 core 或 admin 的基础上增加以下依赖。版本由继承或导入的 `jopson-starter-parent` 管理。只使用 Web 能力的站点可以直接启动，无需配置数据源。
 
 ```xml
 <dependency>
@@ -274,9 +274,9 @@ springdoc:
 ```yaml
 spring:
   datasource:
-    url: ${JORSY_DB_URL} # jdbc:mysql://主机:端口/数据库
-    username: ${JORSY_DB_USER}
-    password: ${JORSY_DB_PASSWORD}
+    url: ${JOPSON_DB_URL} # jdbc:mysql://主机:端口/数据库
+    username: ${JOPSON_DB_USER}
+    password: ${JOPSON_DB_PASSWORD}
 ```
 
 ### 查询与写入
@@ -290,7 +290,7 @@ spring:
 
 ### 系统用户表（starter-admin）
 
-消费站点引入 `jorsy-starter-admin`，并按本节配置 MySQL 驱动和数据源。starter 提供 MyBatis-Plus、分页解析器和 Spring Security，并自动注册 `com.jorsyframework.starter.admin.modules.rights.mapper.SysUserMapper`。站点自己的 Mapper 仍按原有范围扫描。
+消费站点引入 `jopson-starter-admin`，并按本节配置 MySQL 驱动和数据源。starter 提供 MyBatis-Plus、分页解析器和 Spring Security，并自动注册 `com.jopsonframework.starter.admin.modules.rights.mapper.SysUserMapper`。站点自己的 Mapper 仍按原有范围扫描。
 
 后台业务按 `Controller → ISys*Facade → ISys*Service → Mapper` 调用。数据库 Mapper 标注 MyBatis 的 `@Mapper`，Service 和 Facade 实现标注 `@Service`，各业务对象的转换器标注 MapStruct 的 `@Mapper(componentModel = "spring")`。新增类放在业务域对应的包中即可自动发现。直接引用旧版具体 Service 的 Java 调用方请改为注入同域 `service` 包中的 `ISys*Service` 接口。
 
@@ -302,9 +302,9 @@ spring:
 
 ### 系统用户管理接口
 
-用户数据层及业务接口位于 `com.jorsyframework.starter.admin.modules.rights`。升级已有消费代码时，将用户实体、枚举和 Mapper 的 import 切到该权限域。后台启用后可注入 `ISysUserService` 和 `ISysUserFacade`，管理接口从内置会话读取可信操作者。
+用户数据层及业务接口位于 `com.jopsonframework.starter.admin.modules.rights`。升级已有消费代码时，将用户实体、枚举和 Mapper 的 import 切到该权限域。后台启用后可注入 `ISysUserService` 和 `ISysUserFacade`，管理接口从内置会话读取可信操作者。
 
-完整后台从已验证的会话提供操作者，并校验 CSRF。权限使用完整的 `Admin:SysUser:操作名`。关闭 Jorsy 后台的站点自行负责业务认证与授权。
+完整后台从已验证的会话提供操作者，并校验 CSRF。权限使用完整的 `Admin:SysUser:操作名`。关闭 Jopson 后台的站点自行负责业务认证与授权。
 
 以下操作均使用 `POST /admin/sys-user/<动作>`。与 gwcloud 管理页对接时，将删除请求改为 POST，创建请求传每个账号的 `initialPassword`，编辑、状态变更和删除传上次读取的 `version`。头像 ID 只读。成功时读取 `code=0` 和 `data`。
 
@@ -364,7 +364,7 @@ spring:
 
 ```properties
 appender=com.p6spy.engine.spy.appender.Slf4JLogger
-logMessageFormat=com.jorsyframework.starter.core.mybatis.log.JorsySqlFormat
+logMessageFormat=com.jopsonframework.starter.core.mybatis.log.JopsonSqlFormat
 excludecategories=info,debug,result,resultset,commit,rollback
 ```
 
@@ -372,7 +372,7 @@ excludecategories=info,debug,result,resultset,commit,rollback
 
 ## 按需接入 Redis 共享缓存
 
-需要多个实例共享查询结果时，在消费站点引入以下依赖，版本沿用 Jorsy parent 的 Spring Boot BOM。只引用 core 或 admin 的站点默认使用 Caffeine。
+需要多个实例共享查询结果时，在消费站点引入以下依赖，版本沿用 Jopson parent 的 Spring Boot BOM。只引用 core 或 admin 的站点默认使用 Caffeine。
 
 ```xml
 <dependency>
@@ -399,7 +399,7 @@ spring:
 
 ### 声明值类型
 
-在站点配置类中为每个缓存名声明一个 `com.jorsyframework.starter.core.cache.redis.RedisCacheSpec` Bean。同一个缓存名对应同一种值类型；启动时检查重名，使用未声明的缓存名时会报错。泛型值可以使用 Spring 的 `ParameterizedTypeReference`。
+在站点配置类中为每个缓存名声明一个 `com.jopsonframework.starter.core.cache.redis.RedisCacheSpec` Bean。同一个缓存名对应同一种值类型；启动时检查重名，使用未声明的缓存名时会报错。泛型值可以使用 Spring 的 `ParameterizedTypeReference`。
 
 ```java
 @Bean
@@ -464,7 +464,7 @@ spring:
 | 3 | Spring Security、OAuth2/OIDC、数据权限；Forest、OpenFeign 与开放接口认证 | 认证/授权错误、行级隔离、调用上下文、超时和防重放。后台用户、角色和菜单由 admin 管理。 |
 | 4 | 文件存储、Excel、WebSocket/STOMP、短信、XXL-JOB；Forest/Feign/RabbitMQ 日志、Arthas、管理端点访问策略和 Sentinel | 临时存储及供应商替身验收，验证异步追踪、限流与管理权限。 |
 
-可选配置解密随站点需求接入，第三方依赖版本由 `jorsy-starter-parent` 统一管理。发布每项适配前核对 Java 21、Boot 4.2.0 和 Jackson 3 的兼容性。
+可选配置解密随站点需求接入，第三方依赖版本由 `jopson-starter-parent` 统一管理。发布每项适配前核对 Java 21、Boot 4.2.0 和 Jackson 3 的兼容性。
 
 ## 验收
 
@@ -474,10 +474,10 @@ spring:
 mvn clean verify
 ```
 
-单独构建父 POM 和两个 starter 时，在仓库根目录执行 `mvn -f jorsy-starter-parent/pom.xml clean verify`。
+单独构建父 POM 和两个 starter 时，在仓库根目录执行 `mvn -f jopson-starter-parent/pom.xml clean verify`。
 
-可用以下命令检查 starter 产物。输出中应包含 `com/jorsyframework/starter/admin/common/autoconfigure/JorsyAdminAutoConfiguration.class` 和 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`。
+可用以下命令检查 starter 产物。输出中应包含 `com/jopsonframework/starter/admin/common/autoconfigure/JopsonAdminAutoConfiguration.class` 和 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`。
 
 ```powershell
-jar tf .\jorsy-starter-parent\jorsy-starter-admin\target\jorsy-starter-admin-1.0.0.jar
+jar tf .\jopson-starter-parent\jopson-starter-admin\target\jopson-starter-admin-1.0.0.jar
 ```

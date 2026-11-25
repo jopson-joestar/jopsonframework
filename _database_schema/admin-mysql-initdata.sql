@@ -1,9 +1,9 @@
 -- Set @admin_code and @admin_password_hash in this MySQL session before initializing the administrator.
 SET NAMES utf8mb4;
 
-DROP PROCEDURE IF EXISTS jorsy_init_admin;
+DROP PROCEDURE IF EXISTS jopson_init_admin;
 DELIMITER //
-CREATE PROCEDURE jorsy_init_admin()
+CREATE PROCEDURE jopson_init_admin()
 BEGIN
     DECLARE org_id CHAR(32) DEFAULT MD5('jorsy:root-org');
     DECLARE role_id CHAR(32) DEFAULT MD5('jorsy:administrator');
@@ -45,5 +45,5 @@ BEGIN
     COMMIT;
 END //
 DELIMITER ;
-CALL jorsy_init_admin();
-DROP PROCEDURE jorsy_init_admin;
+CALL jopson_init_admin();
+DROP PROCEDURE jopson_init_admin;

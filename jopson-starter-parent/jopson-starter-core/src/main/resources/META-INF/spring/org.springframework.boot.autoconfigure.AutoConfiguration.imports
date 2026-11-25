@@ -1,0 +1,7 @@
+com.jopsonframework.starter.core.cache.autoconfigure.JopsonCacheAutoConfiguration
+com.jopsonframework.starter.core.cache.redis.JopsonRedisCacheAutoConfiguration
+com.jopsonframework.starter.core.json.autoconfigure.JopsonJsonAutoConfiguration
+com.jopsonframework.starter.core.log.autoconfigure.JopsonLogAutoConfiguration
+com.jopsonframework.starter.core.mybatis.autoconfigure.JopsonMybatisAutoConfiguration
+com.jopsonframework.starter.core.openapi.autoconfigure.JopsonValueEnumOpenApiConfiguration
+com.jopsonframework.starter.core.web.autoconfigure.JopsonWebAutoConfiguration

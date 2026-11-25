@@ -1,0 +1,2 @@
+com.jopsonframework.starter.admin.common.autoconfigure.JopsonAdminAutoConfiguration
+com.jopsonframework.starter.admin.common.autoconfigure.JopsonSimpleLoginAutoConfiguration
