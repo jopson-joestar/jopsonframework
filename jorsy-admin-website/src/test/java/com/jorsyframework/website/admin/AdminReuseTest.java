@@ -6,27 +6,34 @@ import javax.sql.DataSource;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.jorsyframework.starter.admin.modules.rights.mapper.SysUserMapper;
 import com.jorsyframework.website.admin.mapping.ItemTestMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.MediaType;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(classes = AdminWebsiteApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
+@SpringBootTest(classes = AdminWebsiteApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "jorsy.admin.mode=ignored-while-disabled")
 class AdminReuseTest {
 
     @Test
-    void startsWithoutOptionalInfrastructure(@Autowired ApplicationContext context) {
+    void startsDevWithoutAdminInfrastructure(@Autowired ApplicationContext context) {
         assertThat(context.getBeansOfType(DataSource.class)).isEmpty();
-        assertThat(context.getBeansOfType(org.springframework.security.web.SecurityFilterChain.class)).isEmpty();
-        for (String type : List.of("com.alibaba.druid.pool.DruidDataSource", "com.p6spy.engine.spy.P6SpyDriver",
-                "org.springframework.data.redis.connection.RedisConnectionFactory", "io.lettuce.core.RedisClient")) {
+        assertThat(context.getBeansOfType(SecurityFilterChain.class)).isEmpty();
+        assertThat(context.getBeansOfType(SysUserMapper.class)).isEmpty();
+        assertThat(context.getBeansOfType(RedisConnectionFactory.class)).isEmpty();
+        for (String type : List.of("com.alibaba.druid.pool.DruidDataSource", "com.p6spy.engine.spy.P6SpyDriver")) {
             assertThat(ClassUtils.isPresent(type, context.getClassLoader())).as(type).isFalse();
         }
     }
@@ -38,9 +45,9 @@ class AdminReuseTest {
     }
 
     @Test
-    void userManagementIsAbsentByDefault(@Value("${local.server.port}") int port) {
+    void userManagementIsAbsentInDev(@Value("${local.server.port}") int port) {
         var client = RestTestClient.bindToServer().build();
-        for (String path : List.of("/auth/csrf", "/admin/sys-login/current")) {
+        for (String path : List.of("/auth/csrf", "/admin/sys-login/current", "/admin-web/", "/admin-web/index.html")) {
             client.get().uri("http://127.0.0.1:" + port + path).exchange().expectStatus().isNotFound();
         }
         RestTestClient.bindToServer().build()
@@ -50,7 +57,7 @@ class AdminReuseTest {
     }
 
     @Test
-    void reportsHealthyByDefault(@Value("${local.server.port}") int port) {
+    void reportsHealthyInDev(@Value("${local.server.port}") int port) {
         RestTestClient.bindToServer().build()
                 .get().uri("http://127.0.0.1:" + port + "/actuator/health")
                 .exchange()

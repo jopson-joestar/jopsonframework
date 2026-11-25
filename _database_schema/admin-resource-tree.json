@@ -1,0 +1,476 @@
+{
+  "resources": [
+    {
+      "sortNo": 10,
+      "sysResType": "FOLDER",
+      "routeName": "JorsyAdminBasedata",
+      "routePath": "/basedata",
+      "routeMeta": {
+        "title": "基础数据"
+      },
+      "children": [
+        {
+          "sortNo": 10,
+          "sysResType": "MENU",
+          "permission": "Admin:SysConfig:View",
+          "routeName": "JorsySysConfig",
+          "routePath": "/basedata/sys-config",
+          "component": "/basedata/sys-config/index",
+          "routeMeta": {
+            "title": "系统配置"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysConfig:Create",
+              "routeName": "JorsySysConfigCreate",
+              "routeMeta": {
+                "title": "新增"
+              }
+            },
+            {
+              "sortNo": 20,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysConfig:Update",
+              "routeName": "JorsySysConfigUpdate",
+              "routeMeta": {
+                "title": "编辑"
+              }
+            },
+            {
+              "sortNo": 30,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysConfig:Delete",
+              "routeName": "JorsySysConfigDelete",
+              "routeMeta": {
+                "title": "删除"
+              }
+            }
+          ]
+        },
+        {
+          "sortNo": 20,
+          "sysResType": "MENU",
+          "permission": "Admin:SysDict:View",
+          "routeName": "JorsySysDict",
+          "routePath": "/basedata/sys-dict",
+          "component": "/basedata/sys-dict/index",
+          "routeMeta": {
+            "title": "系统字典"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysDict:Create",
+              "routeName": "JorsySysDictCreate",
+              "routeMeta": {
+                "title": "新增"
+              }
+            },
+            {
+              "sortNo": 20,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysDict:Update",
+              "routeName": "JorsySysDictUpdate",
+              "routeMeta": {
+                "title": "编辑"
+              }
+            },
+            {
+              "sortNo": 30,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysDict:Delete",
+              "routeName": "JorsySysDictDelete",
+              "routeMeta": {
+                "title": "删除"
+              }
+            },
+            {
+              "sortNo": 40,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysDict:Sync",
+              "routeName": "JorsySysDictSync",
+              "routeMeta": {
+                "title": "同步枚举"
+              }
+            },
+            {
+              "sortNo": 50,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysDictItem:View",
+              "routeName": "JorsySysDictItemView",
+              "routeMeta": {
+                "title": "字典项查看"
+              }
+            },
+            {
+              "sortNo": 60,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysDictItem:Create",
+              "routeName": "JorsySysDictItemCreate",
+              "routeMeta": {
+                "title": "字典项新增"
+              }
+            },
+            {
+              "sortNo": 70,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysDictItem:Update",
+              "routeName": "JorsySysDictItemUpdate",
+              "routeMeta": {
+                "title": "字典项编辑"
+              }
+            },
+            {
+              "sortNo": 80,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysDictItem:Delete",
+              "routeName": "JorsySysDictItemDelete",
+              "routeMeta": {
+                "title": "字典项删除"
+              }
+            }
+          ]
+        },
+        {
+          "sortNo": 30,
+          "sysResType": "MENU",
+          "permission": "Admin:SysSerial:View",
+          "routeName": "JorsySysSerial",
+          "routePath": "/basedata/sys-serial",
+          "component": "/basedata/sys-serial/index",
+          "routeMeta": {
+            "title": "流水规则"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysSerial:Create",
+              "routeName": "JorsySysSerialCreate",
+              "routeMeta": {
+                "title": "新增"
+              }
+            },
+            {
+              "sortNo": 20,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysSerial:Update",
+              "routeName": "JorsySysSerialUpdate",
+              "routeMeta": {
+                "title": "编辑"
+              }
+            },
+            {
+              "sortNo": 30,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysSerial:Delete",
+              "routeName": "JorsySysSerialDelete",
+              "routeMeta": {
+                "title": "删除"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sortNo": 20,
+      "sysResType": "FOLDER",
+      "routeName": "JorsyAdminRights",
+      "routePath": "/rights",
+      "routeMeta": {
+        "title": "权限管理"
+      },
+      "children": [
+        {
+          "sortNo": 10,
+          "sysResType": "MENU",
+          "permission": "Admin:SysOrg:View",
+          "routeName": "JorsySysOrg",
+          "routePath": "/rights/sys-org",
+          "component": "/rights/sys-org/index",
+          "routeMeta": {
+            "title": "组织管理"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysOrg:Create",
+              "routeName": "JorsySysOrgCreate",
+              "routeMeta": {
+                "title": "新增"
+              }
+            },
+            {
+              "sortNo": 20,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysOrg:Update",
+              "routeName": "JorsySysOrgUpdate",
+              "routeMeta": {
+                "title": "编辑"
+              }
+            },
+            {
+              "sortNo": 30,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysOrg:Delete",
+              "routeName": "JorsySysOrgDelete",
+              "routeMeta": {
+                "title": "删除"
+              }
+            }
+          ]
+        },
+        {
+          "sortNo": 20,
+          "sysResType": "MENU",
+          "permission": "Admin:SysUser:View",
+          "routeName": "JorsySysUser",
+          "routePath": "/rights/sys-user",
+          "component": "/rights/sys-user/index",
+          "routeMeta": {
+            "title": "用户管理"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysUser:Create",
+              "routeName": "JorsySysUserCreate",
+              "routeMeta": {
+                "title": "新增"
+              }
+            },
+            {
+              "sortNo": 20,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysUser:Update",
+              "routeName": "JorsySysUserUpdate",
+              "routeMeta": {
+                "title": "编辑"
+              }
+            },
+            {
+              "sortNo": 30,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysUser:Delete",
+              "routeName": "JorsySysUserDelete",
+              "routeMeta": {
+                "title": "删除"
+              }
+            },
+            {
+              "sortNo": 40,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysUser:Audit",
+              "routeName": "JorsySysUserAudit",
+              "routeMeta": {
+                "title": "审核"
+              }
+            },
+            {
+              "sortNo": 50,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysUser:CancelAudit",
+              "routeName": "JorsySysUserCancelAudit",
+              "routeMeta": {
+                "title": "撤审"
+              }
+            },
+            {
+              "sortNo": 60,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysUser:Enable",
+              "routeName": "JorsySysUserEnable",
+              "routeMeta": {
+                "title": "启用"
+              }
+            },
+            {
+              "sortNo": 70,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysUser:Disable",
+              "routeName": "JorsySysUserDisable",
+              "routeMeta": {
+                "title": "停用"
+              }
+            }
+          ]
+        },
+        {
+          "sortNo": 30,
+          "sysResType": "MENU",
+          "permission": "Admin:SysRole:View",
+          "routeName": "JorsySysRole",
+          "routePath": "/rights/sys-role",
+          "component": "/rights/sys-role/index",
+          "routeMeta": {
+            "title": "角色管理"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRole:Create",
+              "routeName": "JorsySysRoleCreate",
+              "routeMeta": {
+                "title": "新增"
+              }
+            },
+            {
+              "sortNo": 20,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRole:Update",
+              "routeName": "JorsySysRoleUpdate",
+              "routeMeta": {
+                "title": "编辑"
+              }
+            },
+            {
+              "sortNo": 30,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRole:Delete",
+              "routeName": "JorsySysRoleDelete",
+              "routeMeta": {
+                "title": "删除"
+              }
+            }
+          ]
+        },
+        {
+          "sortNo": 40,
+          "sysResType": "MENU",
+          "permission": "Admin:SysRes:View",
+          "routeName": "JorsySysRes",
+          "routePath": "/rights/sys-res",
+          "component": "/rights/sys-res/index",
+          "routeMeta": {
+            "title": "资源管理"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRes:Create",
+              "routeName": "JorsySysResCreate",
+              "routeMeta": {
+                "title": "新增"
+              }
+            },
+            {
+              "sortNo": 20,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRes:Update",
+              "routeName": "JorsySysResUpdate",
+              "routeMeta": {
+                "title": "编辑"
+              }
+            },
+            {
+              "sortNo": 30,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRes:Delete",
+              "routeName": "JorsySysResDelete",
+              "routeMeta": {
+                "title": "删除"
+              }
+            },
+            {
+              "sortNo": 40,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRes:Import",
+              "routeName": "JorsySysResImport",
+              "routeMeta": {
+                "title": "导入"
+              }
+            }
+          ]
+        },
+        {
+          "sortNo": 50,
+          "sysResType": "MENU",
+          "permission": "Admin:SysRoleAuth:View",
+          "routeName": "JorsySysRoleAuth",
+          "routePath": "/rights/sys-role-auth",
+          "component": "/rights/sys-role-auth/index",
+          "routeMeta": {
+            "title": "角色授权"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRoleAuth:AuthRes",
+              "routeName": "JorsySysRoleAuthAuthRes",
+              "routeMeta": {
+                "title": "保存授权"
+              }
+            }
+          ]
+        },
+        {
+          "sortNo": 60,
+          "sysResType": "MENU",
+          "permission": "Admin:SysRights:View",
+          "routeName": "JorsySysRights",
+          "routePath": "/rights/sys-rights",
+          "component": "/rights/sys-rights/index",
+          "routeMeta": {
+            "title": "权限身份"
+          },
+          "children": [
+            {
+              "sortNo": 10,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRights:Create",
+              "routeName": "JorsySysRightsCreate",
+              "routeMeta": {
+                "title": "新增"
+              }
+            },
+            {
+              "sortNo": 20,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRights:Update",
+              "routeName": "JorsySysRightsUpdate",
+              "routeMeta": {
+                "title": "编辑"
+              }
+            },
+            {
+              "sortNo": 30,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRights:Delete",
+              "routeName": "JorsySysRightsDelete",
+              "routeMeta": {
+                "title": "删除"
+              }
+            },
+            {
+              "sortNo": 40,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRights:Enable",
+              "routeName": "JorsySysRightsEnable",
+              "routeMeta": {
+                "title": "启用"
+              }
+            },
+            {
+              "sortNo": 50,
+              "sysResType": "BUTTON",
+              "permission": "Admin:SysRights:Disable",
+              "routeName": "JorsySysRightsDisable",
+              "routeMeta": {
+                "title": "停用"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

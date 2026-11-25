@@ -1,0 +1,57 @@
+name: jorsy-local
+
+services:
+  mysql:
+    image: mysql:8.4.9
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_DATABASE: ${JORSY_DB_NAME}
+      MYSQL_USER: ${JORSY_DB_USER}
+      MYSQL_PASSWORD: ${JORSY_DB_PASSWORD}
+      MYSQL_ROOT_HOST: localhost
+      MYSQL_ROOT_PASSWORD: ${JORSY_MYSQL_ROOT_PASSWORD}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+08:00
+    ports:
+      - "127.0.0.1:${JORSY_MYSQL_PORT}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$$MYSQL_PASSWORD" mysql --protocol=TCP --host=127.0.0.1
+          --user="$$MYSQL_USER" --database="$$MYSQL_DATABASE"
+          --execute='SELECT 1'
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  admin:
+    image: eclipse-temurin:21-jre
+    restart: unless-stopped
+    command: ["/bin/sh", "-ec", "cp /app/app.jar /tmp/jorsy-admin.jar && exec java -jar /tmp/jorsy-admin.jar"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Shanghai
+      JORSY_DB_URL: jdbc:mysql://mysql:3306/${JORSY_DB_NAME}
+      JORSY_DB_USER: ${JORSY_DB_USER}
+      JORSY_DB_PASSWORD: ${JORSY_DB_PASSWORD}
+      JORSY_COOKIE_SECURE: "false"
+    ports:
+      - "127.0.0.1:${JORSY_WEB_PORT}:8080"
+    volumes:
+      - type: bind
+        source: ${JORSY_ADMIN_JAR:?Set JORSY_ADMIN_JAR to the embedded website JAR}
+        target: /app/app.jar
+        read_only: true
+        bind:
+          create_host_path: false
+
+volumes:
+  mysql-data:

@@ -17,6 +17,10 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "dist.zip"]
     },
+    "build:embedded": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist-embedded/**"]
+    },
     "preview": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]

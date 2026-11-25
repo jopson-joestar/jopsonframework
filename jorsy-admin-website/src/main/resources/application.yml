@@ -1,15 +1,19 @@
 spring:
   application:
     name: jorsy-admin-website
+  cache:
+    type: caffeine
+  datasource:
+    url: ${JORSY_DB_URL:}
+    username: ${JORSY_DB_USER:}
+    password: ${JORSY_DB_PASSWORD:}
 
----
-spring:
-  config:
-    activate:
-      on-profile: "!login"
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
-      - org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration
+server:
+  servlet:
+    session:
+      timeout: 30m
+      persistent: false
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: ${JORSY_COOKIE_SECURE:true}

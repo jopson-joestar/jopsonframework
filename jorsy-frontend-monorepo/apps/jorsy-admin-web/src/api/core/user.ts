@@ -14,7 +14,8 @@ export interface LoginUser {
   userId: string;
   username: string;
   realName: string;
-  identity: LoginIdentity;
+  mode: 'full' | 'simple';
+  identity: LoginIdentity | null;
   identities: LoginIdentity[];
   permissions: string[];
   administrator: boolean;

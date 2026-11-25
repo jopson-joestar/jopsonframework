@@ -14,7 +14,6 @@ import com.jorsyframework.starter.admin.modules.rights.facade.ISysLoginFacade;
 import com.jorsyframework.starter.admin.modules.rights.service.*;
 import com.jorsyframework.starter.core.util.TreeUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "jorsy.admin.login.enabled", havingValue = "true")
 @Transactional(readOnly = true)
 public class SysLoginFacade implements ISysLoginFacade {
     private final ISysUserService users;

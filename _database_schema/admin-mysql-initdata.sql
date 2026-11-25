@@ -1,7 +1,9 @@
--- Set @admin_code and @admin_password_hash in this MySQL client session before sourcing this file.
-DROP PROCEDURE IF EXISTS jorsy_init_admin_004;
+-- Set @admin_code and @admin_password_hash in this MySQL session before initializing the administrator.
+SET NAMES utf8mb4;
+
+DROP PROCEDURE IF EXISTS jorsy_init_admin;
 DELIMITER //
-CREATE PROCEDURE jorsy_init_admin_004()
+CREATE PROCEDURE jorsy_init_admin()
 BEGIN
     DECLARE org_id CHAR(32) DEFAULT MD5('jorsy:root-org');
     DECLARE role_id CHAR(32) DEFAULT MD5('jorsy:administrator');
@@ -11,7 +13,7 @@ BEGIN
 
     START TRANSACTION;
     IF @admin_code IS NULL OR CHAR_LENGTH(TRIM(@admin_code)) NOT BETWEEN 1 AND 50
-        OR @admin_password_hash IS NULL OR NOT REGEXP_LIKE(@admin_password_hash,
+        OR @admin_password_hash IS NULL OR NOT REGEXP_LIKE(CONVERT(@admin_password_hash USING utf8mb4),
             '^[{]bcrypt[}][$]2[aby][$](0[4-9]|[12][0-9]|3[01])[$][./A-Za-z0-9]{53}$', 'c') THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Set admin_code and a valid {bcrypt} password hash';
     END IF;
@@ -43,5 +45,5 @@ BEGIN
     COMMIT;
 END //
 DELIMITER ;
-CALL jorsy_init_admin_004();
-DROP PROCEDURE jorsy_init_admin_004;
+CALL jorsy_init_admin();
+DROP PROCEDURE jorsy_init_admin;

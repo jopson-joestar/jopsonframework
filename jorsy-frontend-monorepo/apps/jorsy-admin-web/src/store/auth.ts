@@ -25,7 +25,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   function apply(current: LoginUser) {
     user.value = current;
-    useUserStore().setUserInfo({ ...current, avatar: '', roles: [current.identity.sysRoleCode] });
+    useUserStore().setUserInfo({
+      ...current,
+      avatar: '',
+      roles: current.identity ? [current.identity.sysRoleCode] : [],
+    });
     useAccessStore().setAccessCodes(current.permissions);
     checked = true;
   }

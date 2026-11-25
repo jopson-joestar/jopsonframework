@@ -11,25 +11,16 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "jorsy.admin.login.enabled", havingValue = "true")
 public class SysLoginController {
     private final SysLoginSession session;
     private final ISysLoginFacade login;
 
-    public record Csrf(String headerName, String token) {}
     public record SwitchRights(@NotBlank @Size(min = 32, max = 32) String sysRightsId) {}
-
-    @GetMapping("/auth/csrf")
-    public R<Csrf> csrf(CsrfToken token) {
-        return R.success(new Csrf(token.getHeaderName(), token.getToken()));
-    }
 
     @GetMapping("/admin/sys-login/current")
     public R<SysLoginUser> current(HttpServletRequest request) {

@@ -3,6 +3,8 @@ import type {
   GenerateMenuAndRoutesOptions,
 } from '@vben/types';
 
+import type { LoginUser } from '#/api';
+
 import { generateAccessible } from '@vben/access';
 
 import { message } from 'antdv-next';
@@ -13,7 +15,10 @@ import { $t } from '#/locales';
 
 const forbiddenComponent = () => import('#/views/_core/fallback/forbidden.vue');
 
-async function generateAccess(options: GenerateMenuAndRoutesOptions) {
+async function generateAccess(
+  options: GenerateMenuAndRoutesOptions,
+  mode: LoginUser['mode'],
+) {
   const pageMap: ComponentRecordType = import.meta.glob('../views/**/*.vue');
 
   const layoutMap: ComponentRecordType = {
@@ -21,7 +26,7 @@ async function generateAccess(options: GenerateMenuAndRoutesOptions) {
     IFrameView,
   };
 
-  return await generateAccessible('mixed', {
+  return await generateAccessible(mode === 'simple' ? 'frontend' : 'mixed', {
     ...options,
     fetchMenuListAsync: async () => {
       message.loading({

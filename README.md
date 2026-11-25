@@ -6,10 +6,12 @@ Jorsy 1.0.0 使用 Java 21 和 Spring Boot 4.2.0。根 POM 聚合 `jorsy-starter
 | --- | --- |
 | [`jorsy-starter-parent`](jorsy-starter-parent/pom.xml) | 构建父 POM，统一管理框架依赖版本、Java 编译、注解处理器和打包约定，也支持单独导入依赖管理。 |
 | [`jorsy-starter-core`](jorsy-starter-parent/jorsy-starter-core/pom.xml) | 普通 JAR，提供响应、分页、校验、JSON、缓存、日志和 Actuator，并引入 Hutool Core、MapStruct 注解和 OpenAPI 文档能力。 |
-| [`jorsy-starter-admin`](jorsy-starter-parent/jorsy-starter-admin/pom.xml) | 普通 JAR，提供后台接口和按需启用的系统用户数据层。 |
+| [`jorsy-starter-admin`](jorsy-starter-parent/jorsy-starter-admin/pom.xml) | 普通 JAR，提供完整后台和固定账号登录，默认启用完整后台。 |
 | [`jorsy-admin-website`](jorsy-admin-website/pom.xml) | 可独立启动的后台站点。启动类为 `com.jorsyframework.website.admin.AdminWebsiteApplication`，同包下的 `common` 存放本站共用的配置与组件，`modules` 按本站业务功能建包。 |
 
 ## 本地构建和启动
+
+使用 Docker Desktop 调试完整后台时，按[本地 Docker 联调说明](deploy/localhost/README.md)构建前后端一体 JAR 并启动 MySQL 和 Java 容器。
 
 准备 JDK 21 和 Maven 3.9.6，在仓库根目录运行 `mvn -v`，确认输出中的 Java 主版本为 21。在 PowerShell 中可以按实际安装路径切换当前会话的 JDK。
 
@@ -19,11 +21,11 @@ $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 mvn -v
 ```
 
-构建会运行 core 和后台站点的测试，并把根 POM 和各模块安装到 Maven 本地仓库，供其他工程按坐标引用。
+构建会运行 core 和后台站点的测试，并把根 POM 和各模块安装到 Maven 本地仓库，供其他工程按坐标引用。用 `dev` 模式可在无 MySQL 的环境中验证启动和接口文档。
 
 ```powershell
 mvn clean install
-java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar
+java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar --spring.profiles.active=dev
 ```
 
 在另一终端请求健康接口，预期返回 HTTP 200，且 JSON 中的 `status` 为 `UP`。在服务终端按 `Ctrl+C` 停止。
@@ -34,12 +36,12 @@ curl.exe -i http://localhost:8080/actuator/health
 
 ## 启用后台登录
 
-同一个网站 JAR 支持探活模式和登录模式。登录业务在 `jorsy-starter-admin`。部署者先在本站 MySQL 库依次执行 [001～004 管理表和初始化脚本](jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admin/mysql/)，在执行 004 的数据库会话设置 `@admin_code`、`@admin_password_hash`。后者使用部署者生成的 `{bcrypt}` 摘要。
+后台站点默认启用登录、权限和基础数据。首次部署时，按[基础资料与权限管理](#基础资料与权限管理)在本站 MySQL 空库建表和初始化，并使用部署者指定的管理员账号和 `{bcrypt}` 密码摘要。
 
 在运行环境注入 `JORSY_DB_URL`、`JORSY_DB_USER`、`JORSY_DB_PASSWORD`（也支持标准 `SPRING_DATASOURCE_*`），然后运行以下命令。仅本地 HTTP 联调时在当前终端设置 `$env:JORSY_COOKIE_SECURE = 'false'`。生产环境通过 HTTPS 访问同源 `/api`。
 
 ```powershell
-java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar --spring.profiles.active=login
+java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar
 ```
 
 浏览器获取 `GET /auth/csrf` 返回的 `headerName` 和 `token`，在写请求头中带上令牌。以表单编码向 `POST /auth/login` 提交 `username`、`password`，成功后重新取 CSRF。认证依靠 HttpOnly 会话 Cookie，空闲 30 分钟或服务重启后需要重新登录。同一来源连续产生的失败尝试在五分钟内达到 20 次时返回 429。
@@ -51,7 +53,30 @@ java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar --spring.pr
 | `POST /admin/sys-login/switch-rights` | JSON 传 `sysRightsId`，仅可选择本人启用的身份。返回新的当前用户信息。 |
 | `POST /auth/logout` | 销毁会话并清除 Cookie。退出后重新获取 CSRF 供下次登录使用。 |
 
-角色授权的增减在下次受保护请求生效。登录失效返回 401，缺少功能权限或无有效默认身份返回 403。其他站点复用本站会话方案时，声明 Spring Security Web、MyBatis-Plus Boot 4 starter、分页解析器和 MySQL 驱动，配置数据源并设置 `jorsy.admin.login.enabled=true`。可参考[网站 POM](jorsy-admin-website/pom.xml)及[登录运行配置](jorsy-admin-website/src/main/resources/application-login.yml)。
+角色授权的增减在下次受保护请求生效。登录失效返回 401，缺少功能权限或无有效默认身份返回 403。Servlet 站点引入 `jorsy-starter-admin` 后，配置 MySQL 驱动和数据源即可启用整套后台。可参考[网站 POM](jorsy-admin-website/pom.xml)及[网站配置](jorsy-admin-website/src/main/resources/application.yml)。
+
+### 后台模式、数据库和缓存
+
+| 配置 | 后台行为 | 数据源默认 |
+| --- | --- | --- |
+| 省略后台配置，或 `jorsy.admin.enabled=true` 且 `jorsy.admin.mode=full` | 使用数据库账号、权限和完整后台 | 开启，启动时检查 Admin 表 |
+| `jorsy.admin.enabled=true` 且 `jorsy.admin.mode=simple` | 使用固定账号保护业务页面和接口，使用站点前端定义的业务路由 | 关闭 |
+| `jorsy.admin.enabled=false` | 关闭后台登录、接口和内嵌页面入口，忽略 `mode` 和固定账号配置 | 关闭 |
+
+简易登录在服务端配置 `jorsy.admin.simple.username` 和 `jorsy.admin.simple.password-hash`，也可通过环境变量 `JORSY_ADMIN_SIMPLE_USERNAME` 和 `JORSY_ADMIN_SIMPLE_PASSWORD_HASH` 注入。账号为 1 至 32 个字符，摘要使用 `{bcrypt}` 格式。浏览器继续使用相同的登录、退出和 CSRF 接口。当前用户响应中的 `mode` 为 `simple`，无组织、角色或可切换身份。
+
+在简易登录或关闭后台时，设置 `jorsy.datasource.enabled=true` 并提供 `spring.datasource.*` 可启用业务数据源。完整后台需要数据源，显式关闭时启动失败。`dev` 关闭后台且默认关闭数据库，可直接使用 Swagger。
+
+缓存独立由 `spring.cache.type` 选择。后台站点 JAR 已包含 Redis 和 Ehcache 运行依赖。
+
+| 缓存配置 | 配套设置 |
+| --- | --- |
+| `caffeine`（默认） | 使用进程内缓存 |
+| `redis` | 配置 `spring.data.redis.*`、缓存键前缀和需要的 `RedisCacheSpec`，见[按需接入 Redis 共享缓存](#按需接入-redis-共享缓存) |
+| `jcache` | 使用 Ehcache，可通过 `spring.cache.cache-names` 声明缓存，或用 `spring.cache.jcache.config` 指定配置。多个 JCache 实现共存时用 `spring.cache.jcache.provider` 选择 `org.ehcache.jsr107.EhcacheCachingProvider` |
+| `none` | 关闭业务缓存 |
+
+引入 Admin Starter 的站点仅在选用 Redis 缓存时自动装配 Redis 连接。缓存选择独立于登录会话和登录限流。
 
 ## 接入构建父 POM
 
@@ -208,7 +233,7 @@ return new PageResult<>(items, page.total(), page.currentPage(), page.pageSize()
 
 ## 开发环境接口文档
 
-core 默认关闭 OpenAPI 文档和 Swagger UI。后台站点使用 `dev` 配置启用两者。构建后运行以下命令，然后打开 [Swagger UI](http://localhost:8080/swagger-ui/index.html)，或直接读取 [OpenAPI JSON](http://localhost:8080/v3/api-docs)。
+core 默认关闭 OpenAPI 文档和 Swagger UI。后台站点的 `dev` 配置关闭后台装配并启用两者，可在无 MySQL 的环境中启动。构建后运行以下命令，然后打开 [Swagger UI](http://localhost:8080/swagger-ui/index.html) 或 [OpenAPI JSON](http://localhost:8080/v3/api-docs)。
 
 ```powershell
 java -jar .\jorsy-admin-website\target\jorsy-admin-website-1.0.0.jar --spring.profiles.active=dev
@@ -265,15 +290,11 @@ spring:
 
 ### 系统用户表（starter-admin）
 
-消费站点引入 `jorsy-starter-admin`，并按本节的 MySQL 配置添加 MyBatis-Plus、分页解析器和驱动。站点有可注入的 `SqlSessionTemplate` 时，可以在数据服务中直接注入 `com.jorsyframework.starter.admin.modules.rights.mapper.SysUserMapper`。站点自己的 Mapper 仍按原有范围扫描。
+消费站点引入 `jorsy-starter-admin`，并按本节配置 MySQL 驱动和数据源。starter 提供 MyBatis-Plus、分页解析器和 Spring Security，并自动注册 `com.jorsyframework.starter.admin.modules.rights.mapper.SysUserMapper`。站点自己的 Mapper 仍按原有范围扫描。
 
 后台业务按 `Controller → ISys*Facade → ISys*Service → Mapper` 调用。数据库 Mapper 标注 MyBatis 的 `@Mapper`，Service 和 Facade 实现标注 `@Service`，各业务对象的转换器标注 MapStruct 的 `@Mapper(componentModel = "spring")`。新增类放在业务域对应的包中即可自动发现。直接引用旧版具体 Service 的 Java 调用方请改为注入同域 `service` 包中的 `ISys*Service` 接口。
 
-首次启用时，从仓库根目录打开 MySQL 客户端，连接目标库后执行以下命令。发布的 admin JAR 中也包含同一路径后缀的 [001_sys_user.sql](jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admin/mysql/001_sys_user.sql)。脚本创建空表；已有同名表时 MySQL 返回错误。建表由部署方显式执行。
-
-```sql
-SOURCE jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admin/mysql/001_sys_user.sql
-```
+用户表定义位于 [Admin MySQL 建表脚本](_database_schema/admin-mysql-schema.sql)。部署方在空库中显式执行建表脚本；已有同名表时 MySQL 返回错误。
 
 - 登录账号必填，使用 `utf8mb4_0900_ai_ci` 比较。每个账号最多一条未删除记录，锁定或作废期间仍占用账号，逻辑删除后可重新使用。
 - `SysUserStatus` 的业务编码为作废 `-100`、未审核 `0`、锁定 `1`、审核通过 `10`。实体以 32 位 UUID 为主键，沿用 core 的时间审计、版本检查和逻辑删除。
@@ -281,9 +302,9 @@ SOURCE jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admi
 
 ### 系统用户管理接口
 
-用户数据层及业务接口位于 `com.jorsyframework.starter.admin.modules.rights`。升级已有消费代码时，将用户实体、枚举和 Mapper 的 import 切到该权限域。完成上述 MySQL 接入后可注入 `ISysUserService`；站点声明 [SysUserOperatorProvider](jorsy-starter-parent/jorsy-starter-admin/src/main/java/com/jorsyframework/starter/admin/modules/rights/access/SysUserOperatorProvider.java) Bean 后启用 `ISysUserFacade`，Servlet 站点同时注册管理路由。默认后台仅启用已有的探活接口。
+用户数据层及业务接口位于 `com.jorsyframework.starter.admin.modules.rights`。升级已有消费代码时，将用户实体、枚举和 Mapper 的 import 切到该权限域。后台启用后可注入 `ISysUserService` 和 `ISysUserFacade`，管理接口从内置会话读取可信操作者。
 
-启用本站登录时，admin 从已验证的会话提供操作者，并校验 CSRF。接入自有认证的站点可自行提供 `SysUserOperatorProvider`，从可信上下文构造 `Optional.of(new SysUserOperatorProvider.Operator(userId, permissions))`，匿名请求返回 `Optional.empty()`。权限使用完整的 `Admin:SysUser:操作名`。
+完整后台从已验证的会话提供操作者，并校验 CSRF。权限使用完整的 `Admin:SysUser:操作名`。关闭 Jorsy 后台的站点自行负责业务认证与授权。
 
 以下操作均使用 `POST /admin/sys-user/<动作>`。与 gwcloud 管理页对接时，将删除请求改为 POST，创建请求传每个账号的 `initialPassword`，编辑、状态变更和删除传上次读取的 `version`。头像 ID 只读。成功时读取 `code=0` 和 `data`。
 
@@ -300,18 +321,18 @@ SOURCE jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admi
 
 ### 基础资料与权限管理
 
-在目标 MySQL 8 库中手动执行以下脚本。全新站点从第一步开始，已有 `sys_user` 的站点从第二步开始。脚本随 admin JAR 打包。
+两份 SQL 统一维护在仓库根目录的 `_database_schema/`。手工初始化时，在仓库根目录打开 MySQL 8 客户端并连接目标库。
 
-1. [001_sys_user.sql](jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admin/mysql/001_sys_user.sql) 建立用户表。
-2. [002_sys_basedata.sql](jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admin/mysql/002_sys_basedata.sql) 建立配置、流水、字典和字典项。
-3. [003_sys_rights.sql](jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admin/mysql/003_sys_rights.sql) 建立组织、资源、角色、角色资源授权、权限身份和额外组织。
-4. 在同一个 MySQL 客户端会话设置 `@admin_code` 与 `@admin_password_hash`，再用 `SOURCE` 执行 [004_admin_initdata.sql](jorsy-starter-parent/jorsy-starter-admin/src/main/resources/db/jorsy/admin/mysql/004_admin_initdata.sql)。账号由部署者指定，摘要采用 Spring Security 的 `{bcrypt}` 格式。执行账号需具备创建、执行和删除存储过程的权限。
+1. 在空库执行 [admin-mysql-schema.sql](_database_schema/admin-mysql-schema.sql)，建立用户、基础资料和权限共 11 张表。
+2. 在同一个客户端会话设置 `@admin_code` 和 `@admin_password_hash`，再执行 [admin-mysql-initdata.sql](_database_schema/admin-mysql-initdata.sql)。账号由部署者指定，摘要使用 Spring Security 的 `{bcrypt}` 格式。执行账号需具备创建、执行和删除存储过程的权限。
 
-初始化在一个事务内建立内置用户、根组织 `0001`、角色 `administrator` 及其启用的默认身份（数据范围 `9`）。使用相同账号再次执行时保留原密码摘要。账号已被普通用户占用时整笔回滚。每个站点拥有自己的资源树和角色授权，资源树顶层的 `parentId` 为 `null`。
+初始数据包含内置用户、根组织 `0001`、角色 `administrator` 和已启用的默认身份。用相同账号重跑时保留原密码摘要，普通账号占用指定名称时管理员初始化回滚。
+
+后台资源统一维护在 [admin-resource-tree.json](_database_schema/admin-resource-tree.json)，文件用 `children` 表示资源层级。首次登录后，内置管理员从工作台进入「导入菜单资源」，选择该文件并提交。导入后可在「资源管理」维护菜单。已有库补齐缺失资源时，选择「增量」并只勾选「新增」。
 
 组织、角色和资源树按查询顺序展示从根可达的节点。父级缺失或形成闭环的分支会被略过，其余分支照常展示。角色授权树先按可授予资源过滤，再按相同规则组树；已勾选的资源 ID 从 `checkedKeys` 读取。
 
-启用条件与用户管理相同。配置数据源和可信 `SysUserOperatorProvider` 后，可通过 HTTP 或直接注入对应的 `ISys*Facade` 调用。所有路由均以 `/admin/` 开头。下面的权限后缀与资源名组合，例如 `Admin:SysDict:Sync`。常规动作 `page/tree/get-by-id` 需要 `View`，`create/update-by-id/delete-by-id` 分别需要 `Create/Update/Delete`。
+后台启用后，可通过 HTTP 或直接注入对应的 `ISys*Facade` 调用。所有路由均以 `/admin/` 开头。下面的权限后缀与资源名组合，例如 `Admin:SysDict:Sync`。常规动作 `page/tree/get-by-id` 需要 `View`，`create/update-by-id/delete-by-id` 分别需要 `Create/Update/Delete`。
 
 | 路由与权限资源 | 提供的动作 | 业务约定 |
 | --- | --- | --- |

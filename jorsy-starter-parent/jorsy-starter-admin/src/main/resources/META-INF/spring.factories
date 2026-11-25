@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\
+com.jorsyframework.starter.admin.common.autoconfigure.AdminAutoConfigurationFilter

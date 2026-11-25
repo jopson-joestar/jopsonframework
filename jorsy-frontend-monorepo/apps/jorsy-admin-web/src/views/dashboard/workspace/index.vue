@@ -6,7 +6,7 @@ import type {
   WorkbenchTrendItem,
 } from '@vben/common-ui';
 
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import {
@@ -20,6 +20,10 @@ import {
 import { preferences } from '@vben/preferences';
 import { useUserStore } from '@vben/stores';
 import { openWindow } from '@vben/utils';
+import { Button } from 'antdv-next';
+
+import { useAuthStore } from '#/store/auth';
+import ResourceImport from '#/views/rights/sys-res/resource-import.vue';
 
 import AnalyticsVisitsSource from '../analytics/analytics-visits-source.vue';
 
@@ -197,6 +201,18 @@ const trendItems: WorkbenchTrendItem[] = [
 ];
 
 const router = useRouter();
+const auth = useAuthStore();
+const importOpen = ref(false);
+const showResourceImport = computed(
+  () =>
+    auth.user?.mode === 'full' &&
+    auth.user.administrator &&
+    !router.hasRoute('JorsySysRes'),
+);
+
+function reloadWorkspace() {
+  window.location.reload();
+}
 
 // 这是一个示例方法，实际项目中需要根据实际情况进行调整
 // This is a sample method, adjust according to the actual project requirements
@@ -225,6 +241,11 @@ function navTo(nav: WorkbenchProjectItem | WorkbenchQuickNavItem) {
       </template>
       <template #description> 今日晴，20℃ - 32℃！ </template>
     </WorkbenchHeader>
+
+    <div v-if="showResourceImport" class="mt-5">
+      <Button type="primary" @click="importOpen = true">导入菜单资源</Button>
+      <ResourceImport v-model:open="importOpen" @complete="reloadWorkspace" />
+    </div>
 
     <div class="mt-5 flex flex-col lg:flex-row">
       <div class="mr-4 w-full lg:w-3/5">

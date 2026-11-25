@@ -75,7 +75,7 @@ const showDot = computed(() =>
 
 const menus = computed(() => [
   ...(authStore.user?.identities ?? [])
-    .filter((item) => item.sysRightsId !== authStore.user?.identity.sysRightsId)
+    .filter((item) => item.sysRightsId !== authStore.user?.identity?.sysRightsId)
     .map((item) => ({
       icon: 'lucide:repeat',
       text: `切换到 ${item.sysOrgName}／${item.sysRoleName}`,
@@ -189,7 +189,10 @@ watch(
     <template #user-dropdown>
       <div class="flex items-center" role="group" aria-label="用户和权限身份">
         <span v-if="authStore.user" class="hidden text-sm md:inline">
-          {{ authStore.user.realName }} · {{ authStore.user.identity.sysOrgName }}／{{ authStore.user.identity.sysRoleName }}
+          {{ authStore.user.realName }}
+          <template v-if="authStore.user.identity">
+            · {{ authStore.user.identity.sysOrgName }}／{{ authStore.user.identity.sysRoleName }}
+          </template>
         </span>
         <UserDropdown
           :avatar

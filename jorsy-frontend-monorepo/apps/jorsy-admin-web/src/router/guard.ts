@@ -57,9 +57,14 @@ function setupAccessGuard(router: Router) {
 
     const access = useAccessStore();
     if (access.isAccessChecked) return true;
-    const { accessibleMenus, accessibleRoutes } = await generateAccess({
-      roles: [auth.user.identity.sysRoleCode], router, routes: accessRoutes,
-    });
+    const { accessibleMenus, accessibleRoutes } = await generateAccess(
+      {
+        roles: auth.user.identity ? [auth.user.identity.sysRoleCode] : [],
+        router,
+        routes: accessRoutes,
+      },
+      auth.user.mode,
+    );
     access.setAccessMenus(accessibleMenus);
     access.setAccessRoutes(accessibleRoutes);
     access.setIsAccessChecked(true);
