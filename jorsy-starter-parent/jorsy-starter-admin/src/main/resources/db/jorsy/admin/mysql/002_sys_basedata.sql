@@ -1,0 +1,81 @@
+CREATE TABLE sys_config (
+    sys_config_id       CHAR(32)      NOT NULL COMMENT '配置主键',
+    sys_config_code     VARCHAR(100)  NOT NULL COMMENT '配置代码',
+    sys_config_name     VARCHAR(100)  DEFAULT NULL COMMENT '配置名称',
+    sys_config_value    VARCHAR(1000) DEFAULT NULL COMMENT '配置值',
+    remark              VARCHAR(500)  DEFAULT NULL COMMENT '备注',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_config_id),
+    KEY idx_sys_config_code_deleted (sys_config_code, deleted),
+    KEY idx_sys_config_deleted_create_time (deleted, create_time),
+    UNIQUE KEY uk_sys_config_active ((CASE WHEN deleted = b'0' THEN sys_config_code END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 系统配置' ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE sys_dict_item (
+    sys_dict_item_id    CHAR(32)      NOT NULL COMMENT '字典明细主键',
+    sys_dict_id         CHAR(32)      NOT NULL COMMENT '字典主键',
+    dict_item_value     VARCHAR(50)   NOT NULL COMMENT '明细值',
+    dict_item_label     VARCHAR(100)  DEFAULT NULL COMMENT '明细标签',
+    sort_no             INT           DEFAULT NULL COMMENT '排序序号',
+    dict_item_extra     JSON          NULL COMMENT '明细扩展数据',
+    label_color         VARCHAR(50)   DEFAULT NULL COMMENT '标签颜色',
+    label_class         VARCHAR(100)  DEFAULT NULL COMMENT '标签样式',
+    disabled            BIT(1)        NULL DEFAULT b'0' COMMENT '是否禁用',
+    remark              VARCHAR(500)  DEFAULT NULL COMMENT '备注',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_dict_item_id),
+    KEY idx_sys_dict_item_dict_value_deleted (sys_dict_id, dict_item_value, deleted),
+    KEY idx_sys_dict_item_dict_sort_deleted (sys_dict_id, sort_no, deleted),
+    KEY idx_sys_dict_item_value_deleted (dict_item_value, deleted),
+    UNIQUE KEY uk_sys_dict_item_active ((CASE WHEN deleted = b'0' THEN sys_dict_id END), (CASE WHEN deleted = b'0' THEN dict_item_value END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 字典明细' ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE sys_dict (
+    sys_dict_id         CHAR(32)      NOT NULL COMMENT '字典主键',
+    sys_dict_code       VARCHAR(50)   NOT NULL COMMENT '字典代码',
+    sys_dict_name       VARCHAR(100)  DEFAULT NULL COMMENT '字典名称',
+    locked              BIT(1)        NULL DEFAULT b'0' COMMENT '是否锁定',
+    remark              VARCHAR(500)  DEFAULT NULL COMMENT '备注',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_dict_id),
+    KEY idx_sys_dict_code_deleted (sys_dict_code, deleted),
+    KEY idx_sys_dict_deleted_create_time (deleted, create_time),
+    UNIQUE KEY uk_sys_dict_active ((CASE WHEN deleted = b'0' THEN sys_dict_code END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 数据字典' ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE sys_serial (
+    sys_serial_id       CHAR(32)      NOT NULL COMMENT '序列主键',
+    serial_code         VARCHAR(50)   NOT NULL COMMENT '序列代码',
+    serial_name         VARCHAR(100)  DEFAULT NULL COMMENT '序列名称',
+    serial_prefix       VARCHAR(50)   DEFAULT NULL COMMENT '序列前缀',
+    serial_suffix       VARCHAR(50)   DEFAULT NULL COMMENT '序列后缀',
+    serial_digit        INT           DEFAULT NULL COMMENT '序列位数',
+    date_format         VARCHAR(50)   DEFAULT NULL COMMENT '日期格式化',
+    last_serial         JSON          NULL COMMENT '最后序号',
+    sys_data            BIT(1)        DEFAULT NULL COMMENT '系统数据',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_serial_id),
+    KEY idx_sys_serial_code_deleted (serial_code, deleted),
+    KEY idx_sys_serial_deleted_create_time (deleted, create_time),
+    UNIQUE KEY uk_sys_serial_active ((CASE WHEN deleted = b'0' THEN serial_code END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 系统流水号' ROW_FORMAT=DYNAMIC;

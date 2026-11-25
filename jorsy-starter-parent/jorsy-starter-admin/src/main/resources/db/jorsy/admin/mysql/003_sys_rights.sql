@@ -1,0 +1,123 @@
+CREATE TABLE sys_org (
+    sys_org_id          CHAR(32)      NOT NULL COMMENT '组织主键',
+    parent_id           CHAR(32)      DEFAULT NULL COMMENT '父级主键',
+    sys_org_code        VARCHAR(50)   NOT NULL COMMENT '组织代码',
+    sys_org_name        VARCHAR(100)  DEFAULT NULL COMMENT '组织名称',
+    sys_org_type        CHAR(1)       DEFAULT NULL COMMENT '类型代码',
+    sort_no             INT           DEFAULT NULL COMMENT '排序序号',
+    sys_data            BIT(1)        DEFAULT NULL COMMENT '系统数据',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_org_id),
+    KEY idx_sys_org_code_deleted (sys_org_code, deleted),
+    KEY idx_sys_org_parent_sort_deleted (parent_id, sort_no, deleted),
+    KEY idx_sys_org_sort_deleted (sort_no, deleted),
+    UNIQUE KEY uk_sys_org_active ((CASE WHEN deleted = b'0' THEN sys_org_code END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 系统组织' ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE sys_res (
+    sys_res_id          CHAR(32)      NOT NULL COMMENT '资源主键',
+    parent_id           CHAR(32)      DEFAULT NULL COMMENT '父级主键，根节点为空',
+    sort_no             INT           DEFAULT NULL COMMENT '排序序号',
+    sys_res_type        VARCHAR(10)   DEFAULT NULL COMMENT '资源类型',
+    permission          VARCHAR(100)  DEFAULT NULL COMMENT '权限标识',
+    route_name          VARCHAR(100)  NOT NULL COMMENT '路由名称',
+    route_path          VARCHAR(500)  DEFAULT NULL COMMENT '路由路径',
+    component           VARCHAR(500)  DEFAULT NULL COMMENT 'Vue组件',
+    redirect            VARCHAR(500)  DEFAULT NULL COMMENT '路由重定向',
+    route_meta          JSON          NULL COMMENT 'Vben路由元数据',
+    remark              VARCHAR(500)  DEFAULT NULL COMMENT '备注',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_res_id),
+    KEY idx_sys_res_sort_deleted (sort_no, deleted),
+    KEY idx_sys_res_parent_deleted (parent_id, deleted),
+    KEY idx_sys_res_type_sort_deleted (sys_res_type, sort_no, deleted),
+    UNIQUE KEY uk_sys_res_active ((CASE WHEN deleted = b'0' THEN route_name END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 系统资源' ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE sys_rights_extra (
+    sys_rights_extra_id CHAR(32)      NOT NULL COMMENT '权限额外组织主键',
+    sys_rights_id       CHAR(32)      NOT NULL COMMENT '权限身份主键',
+    sys_org_id          CHAR(32)      NOT NULL COMMENT '额外可查看组织主键',
+    sys_org_code        VARCHAR(50)   DEFAULT NULL COMMENT '额外可查看组织编码',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_rights_extra_id),
+    KEY idx_sys_rights_extra_rights_org_deleted (sys_rights_id, sys_org_id, deleted),
+    KEY idx_sys_rights_extra_rights (sys_rights_id, deleted),
+    KEY idx_sys_rights_extra_org_code (sys_org_code, deleted),
+    UNIQUE KEY uk_sys_rights_extra_active ((CASE WHEN deleted = b'0' THEN sys_rights_id END), (CASE WHEN deleted = b'0' THEN sys_org_id END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 权限额外组织' ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE sys_rights (
+    sys_rights_id       CHAR(32)      NOT NULL COMMENT '权限身份主键',
+    sys_user_id         CHAR(32)      NOT NULL COMMENT '用户主键',
+    sys_user_code       VARCHAR(50)   DEFAULT NULL COMMENT '用户账号',
+    sys_org_id          CHAR(32)      NOT NULL COMMENT '组织主键',
+    sys_org_code        VARCHAR(50)   DEFAULT NULL COMMENT '组织编码',
+    sys_role_id         CHAR(32)      NOT NULL COMMENT '角色主键',
+    sys_role_code       VARCHAR(50)   DEFAULT NULL COMMENT '角色编码',
+    data_scope          CHAR(1)       DEFAULT NULL COMMENT '基础数据权限：1仅本人 2本组织 3本组织及下级 9全部',
+    enabled             BIT(1)        NULL DEFAULT b'1' COMMENT '是否启用',
+    defaulted           BIT(1)        NULL DEFAULT b'0' COMMENT '是否默认',
+    sys_data            BIT(1)        NULL DEFAULT b'0' COMMENT '系统数据',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_rights_id),
+    KEY idx_sys_rights_user_org_role_deleted (sys_user_id, sys_org_id, sys_role_id, deleted),
+    KEY idx_sys_rights_user_code (sys_user_code, deleted),
+    KEY idx_sys_rights_user_enabled (sys_user_id, enabled, deleted),
+    KEY idx_sys_rights_user_defaulted (sys_user_id, defaulted, enabled, deleted),
+    KEY idx_sys_rights_org_code (sys_org_code, deleted),
+    KEY idx_sys_rights_role_code (sys_role_code, deleted),
+    KEY idx_sys_rights_role_enabled_deleted (sys_role_id, enabled, deleted),
+    UNIQUE KEY uk_sys_rights_active ((CASE WHEN deleted = b'0' THEN sys_user_id END), (CASE WHEN deleted = b'0' THEN sys_org_id END), (CASE WHEN deleted = b'0' THEN sys_role_id END)),
+    UNIQUE KEY uk_sys_rights_default ((CASE WHEN deleted = b'0' AND defaulted = b'1' THEN sys_user_id END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 权限身份' ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE sys_role_auth (
+    sys_role_auth_id    CHAR(32)      NOT NULL COMMENT '授权主键',
+    sys_role_id         CHAR(32)      NOT NULL COMMENT '角色主键',
+    sys_res_id          CHAR(32)      NOT NULL COMMENT '资源主键',
+    PRIMARY KEY (sys_role_auth_id),
+    KEY idx_sys_role_auth_role (sys_role_id),
+    KEY idx_sys_role_auth_res (sys_res_id),
+    UNIQUE KEY uk_sys_role_auth_pair (sys_role_id, sys_res_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 角色授权' ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE sys_role (
+    sys_role_id         CHAR(32)      NOT NULL COMMENT '角色主键',
+    parent_id           CHAR(32)      DEFAULT NULL COMMENT '父级角色主键',
+    sys_role_code       VARCHAR(50)   NOT NULL COMMENT '角色代码',
+    sys_role_name       VARCHAR(100)  DEFAULT NULL COMMENT '角色名称',
+    remark              VARCHAR(500)  DEFAULT NULL COMMENT '备注',
+    sys_data            BIT(1)        DEFAULT NULL COMMENT '系统数据',
+    create_id           CHAR(32)      DEFAULT NULL COMMENT '创建人主键',
+    create_time         DATETIME(3)   DEFAULT NULL COMMENT '创建时间',
+    update_id           CHAR(32)      DEFAULT NULL COMMENT '修改人主键',
+    update_time         DATETIME(3)   DEFAULT NULL COMMENT '修改时间',
+    version             BIGINT        NOT NULL DEFAULT 0 COMMENT '版本号',
+    deleted             BIT(1)        NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+    PRIMARY KEY (sys_role_id),
+    KEY idx_sys_role_parent (parent_id, deleted),
+    KEY idx_sys_role_code_deleted (sys_role_code, deleted),
+    KEY idx_sys_role_deleted_create_time (deleted, create_time),
+    UNIQUE KEY uk_sys_role_active ((CASE WHEN deleted = b'0' THEN sys_role_code END))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='[系统] 系统角色' ROW_FORMAT=DYNAMIC;
